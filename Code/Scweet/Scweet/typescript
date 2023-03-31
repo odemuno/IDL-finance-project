@@ -1,4 +1,46 @@
 Script started on Fri Mar 31 17:14:45 2023
 [1m[7m%[27m[1m[0m                                                                                                                                        [0m[27m[24m[J(base) Dell@MacBook-Air-74 Scweet % [K[?2004hcconda activate o idls23[?2004l
 [1m[7m%[27m[1m[0m                                                                                                                                        [0m[27m[24m[J(idls23) Dell@MacBook-Air-74 Scweet % [K[?2004hccel c clear[?2004l
+[H[2J[1m[7m%[27m[1m[0m                                                                                                                                        [0m[27m[24m[J(idls23) Dell@MacBook-Air-74 Scweet % [K[?2004hcconda --help[?2004l
+usage: conda [-h] [-V] command ...
+
+conda is a tool for managing and deploying applications, environments and packages.
+
+Options:
+
+positional arguments:
+  command
+    clean             Remove unused packages and caches.
+    compare           Compare packages between conda environments.
+    config            Modify configuration values in .condarc. This is modeled after the git config command. Writes to the user
+                      .condarc file (/Users/Dell/.condarc) by default. Use the --show-sources flag to display all identified
+                      configuration locations on your computer.
+    create            Create a new conda environment from a list of specified packages.
+    info              Display information about current conda install.
+    init              Initialize conda for shell interaction.
+    install           Installs a list of packages into a specified conda environment.
+    list              List installed packages in a conda environment.
+    package           Low-level conda package utility. (EXPERIMENTAL)
+    remove (uninstall)
+                      Remove a list of packages from a specified conda environment.
+    rename            Renames an existing environment.
+    run               Run an executable in a conda environment.
+    search            Search for packages and display associated information.The input is a MatchSpec, a query language for conda
+                      packages. See examples below.
+    update (upgrade)  Updates conda packages to the latest compatible version.
+    notices           Retrieves latest channel notifications.
+
+optional arguments:
+  -h, --help          Show this help message and exit.
+  -V, --version       Show the conda version number and exit.
+
+conda commands available from other packages (legacy):
+  content-trust
+  env
+[1m[7m%[27m[1m[0m                                                                                                                                        [0m[27m[24m[J(idls23) Dell@MacBook-Air-74 Scweet % [K[?2004hcclear[?2004l
+[H[2J[1m[7m%[27m[1m[0m                                                                                                                                        [0m[27m[24m[J(idls23) Dell@MacBook-Air-74 Scweet % [K[?2004h[7mconda list | grep tensorflow[27m[28D[27mc[27mo[27mn[27md[27ma[27m [27ml[27mi[27ms[27mt[27m [27m|[27m [27mg[27mr[27me[27mp[27m [27mt[27me[27mn[27ms[27mo[27mr[27mf[27ml[27mo[27mw           sklearn[?2004l
+sklearn                   0.0.post1                pypi_0    pypi
+[1m[7m%[27m[1m[0m                                                                                                                                        [0m[27m[24m[J(idls23) Dell@MacBook-Air-74 Scweet % [K[?2004hconda list | grep sklearn      cipy[?2004l
+scipy                     1.10.1                   pypi_0    pypi
+[1m[7m%[27m[1m[0m                                                                                                                                        [0m[27m[24m[J(idls23) Dell@MacBook-Air-74 Scweet % [K[?2004hcclear[?2004l
 [H[2J[1m[7m%[27m[1m[0m                                                                                                                                        [0m[27m[24m[J(idls23) Dell@MacBook-Air-74 Scweet % [K[?2004h
