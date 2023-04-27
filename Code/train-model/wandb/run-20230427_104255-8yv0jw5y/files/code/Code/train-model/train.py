@@ -32,12 +32,14 @@ def load_datasets(train_dataset_path,test_dataset_path):
 
 # Create 7 new features for the dataset
 def feature_engineering(df):
-    # Create lagged features for the price_diff values
-    for i in range(1, 8):
-        df[f'PriceDiff_{i}'] = df['Close'].shift(i)
+    df['MovingAvg'] = df['Close'].rolling(window=7).mean()
+    df['SentimentDiff'] = df['sentiment_score'] - df['sentiment_score'].rolling(window=7).mean()
+    # # Create lagged features for the price_diff values
+    # for i in range(1, 8):
+    #     df[f'PriceDiff_{i}'] = df['Close'].shift(i)
 
-    # Remove missing values
-    df = df.dropna().reset_index(drop=True)
+    # # Remove missing values
+    # df = df.dropna().reset_index(drop=True)
     
     return df
 
@@ -47,9 +49,9 @@ def feature_engineering(df):
  y : the labels (stock price difference)
 '''
 def train_test_split(train_df,test_df):
-    X_train = train_df[['sentiment_score', 'PriceDiff_1', 'PriceDiff_2', 'PriceDiff_3', 'PriceDiff_4', 'PriceDiff_5', 'PriceDiff_6', 'PriceDiff_7']]
+    X_train = train_df[['sentiment_score', 'MovingAvg','SentimentDiff']]
     y_train = train_df.Close
-    X_test = test_df[['sentiment_score', 'PriceDiff_1', 'PriceDiff_2', 'PriceDiff_3', 'PriceDiff_4', 'PriceDiff_5', 'PriceDiff_6', 'PriceDiff_7']]
+    X_test = test_df[['sentiment_score', 'MovingAvg','SentimentDiff']]
     y_test = test_df.Close
     return X_train,y_train,X_test,y_test
 
@@ -68,7 +70,7 @@ def load_and_train_model(X_train,y_train,X_test,y_test):
     model.compile(optimizer='sgd', loss='mean_squared_error')   
 
     # train the model
-    model.fit(X_train, y_train, epochs=500, batch_size=64, validation_data=(X_test, y_test),callbacks=[WandbCallback(monitor='val_loss', save_model=True)])
+    model.fit(X_train, y_train, epochs=1000, batch_size=64, validation_data=(X_test, y_test),callbacks=[WandbCallback(monitor='val_loss', save_model=True)])
 
     return model
 
@@ -88,13 +90,6 @@ def get_predictions(model,X_train,X_test,y_test,train_df,test_df,run_name):
     print(f'Mean Absolute Error: {mae:.2f}')
     print(f'Root Mean Squared Error: {rmse:.2f}')
     print(f'R-squared: {r2:.2f}')
-    evaluation_df = pd.DataFrame({
-        'Mean Squared Error':mse,
-        'Mean Absolute Error':mae,
-        'Root Mean Square Error':rmse,
-        'R-squared':r2
-    },index=[0])
-    evaluation_df.to_csv('evaluation_metrics/metrics-'+run_name+'.csv')
 
     # Add predictions to final dataset
     df = pd.concat([train_df,test_df],ignore_index=True)
@@ -105,7 +100,7 @@ def plot_graph(df,test_df,run_name):
     fig, ax = plt.subplots(figsize=(10, 6))
     df.plot(y='Close',color='green',ax=ax,label='Actual Price Diff')
     df.loc[test_df['Date'][0]:,'Predicted Price Diff'].plot(ax=ax, color='red', label='Predicted Price Diff for 2022')
-    ax.set_title('Predicted Stock Price Diff for '+run_name+' 2020-2022 (Train from 2020-2021 and Test 2022)')
+    ax.set_title('Predicted Stock Price Diff for 2020-2022 (Train from 2020-2021 and Test 2022)')
     plt.savefig('charts/'+run_name+'.png')
 
 

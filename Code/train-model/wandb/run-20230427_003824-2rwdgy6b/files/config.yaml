@@ -1,0 +1,36 @@
+wandb_version: 1
+
+_wandb:
+  desc: null
+  value:
+    code_path: code/Code/train-model/train.py
+    python_version: 3.9.12
+    cli_version: 0.15.0
+    framework: keras
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    start_time: 1682570304.569094
+    t:
+      1:
+      - 2
+      - 3
+      - 5
+      - 53
+      - 55
+      2:
+      - 2
+      - 3
+      - 5
+      - 53
+      - 55
+      3:
+      - 3
+      - 8
+      - 13
+      - 23
+      4: 3.9.12
+      5: 0.15.0
+      8:
+      - 5
+      10:
+      - 9

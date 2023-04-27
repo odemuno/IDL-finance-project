@@ -37,8 +37,7 @@ def feature_engineering(df):
         df[f'PriceDiff_{i}'] = df['Close'].shift(i)
 
     # Remove missing values
-    df = df.dropna().reset_index(drop=True)
-    
+    df.dropna(inplace=True)
     return df
 
 '''
@@ -68,7 +67,7 @@ def load_and_train_model(X_train,y_train,X_test,y_test):
     model.compile(optimizer='sgd', loss='mean_squared_error')   
 
     # train the model
-    model.fit(X_train, y_train, epochs=500, batch_size=64, validation_data=(X_test, y_test),callbacks=[WandbCallback(monitor='val_loss', save_model=True)])
+    model.fit(X_train, y_train, epochs=1000, batch_size=64, validation_data=(X_test, y_test),callbacks=[WandbCallback(monitor='val_loss', save_model=True)])
 
     return model
 
@@ -76,7 +75,6 @@ def get_predictions(model,X_train,X_test,y_test,train_df,test_df,run_name):
     # Get predictions for train and test dataset
     predictions_train = model.predict(X_train)
     predictions_test = model.predict(X_test)
-
     predicted_price_diff = np.concatenate((predictions_train,predictions_test),axis=0)
 
     # Evaluate the model
@@ -88,25 +86,19 @@ def get_predictions(model,X_train,X_test,y_test,train_df,test_df,run_name):
     print(f'Mean Absolute Error: {mae:.2f}')
     print(f'Root Mean Squared Error: {rmse:.2f}')
     print(f'R-squared: {r2:.2f}')
-    evaluation_df = pd.DataFrame({
-        'Mean Squared Error':mse,
-        'Mean Absolute Error':mae,
-        'Root Mean Square Error':rmse,
-        'R-squared':r2
-    },index=[0])
-    evaluation_df.to_csv('evaluation_metrics/metrics-'+run_name+'.csv')
 
     # Add predictions to final dataset
-    df = pd.concat([train_df,test_df],ignore_index=True)
+    df = pd.concat([train_df,test_df])
     df['Predicted Price Diff'] = predicted_price_diff
+    df.to_csv('updated-data/final-'+run_name+'.csv')
     return df
 
-def plot_graph(df,test_df,run_name):
+def plot_graph(df):
+    print(df.head(20))
     fig, ax = plt.subplots(figsize=(10, 6))
     df.plot(y='Close',color='green',ax=ax,label='Actual Price Diff')
-    df.loc[test_df['Date'][0]:,'Predicted Price Diff'].plot(ax=ax, color='red', label='Predicted Price Diff for 2022')
-    ax.set_title('Predicted Stock Price Diff for '+run_name+' 2020-2022 (Train from 2020-2021 and Test 2022)')
-    plt.savefig('charts/'+run_name+'.png')
+    df.loc['2022-01-03':,'Predicted Price Diff'].plot(ax=ax, color='red', label='Predicted Price Diff for 2022')
+    ax.set_title('Predicted Stock Price Diff for 2020-2022 (Train from 2020-2021 and Test 2022)')
 
 
 def main():
@@ -135,9 +127,9 @@ def main():
     model = load_and_train_model(X_train=X_train,y_train=y_train,X_test=X_test,y_test=y_test)
 
     # Make predictions and evaluation and obtain the final dataframe
-    final_df = get_predictions(model=model,X_train=X_train,X_test=X_test,y_test=y_test,train_df=train_df,test_df=test_df,run_name=args.wandb_run_name)
+    final_df = get_predictions(model=model,X_train=X_train,X_test=X_test,y_test=y_test,train_df=train_df,test_df=test_df,run_name=args.run_name)
 
     # Plot the graph for predictions on 2022 stock price diff values
-    plot_graph(df=final_df,test_df=test_df,run_name=args.wandb_run_name)
+    plot_graph(final_df)
 
 main()

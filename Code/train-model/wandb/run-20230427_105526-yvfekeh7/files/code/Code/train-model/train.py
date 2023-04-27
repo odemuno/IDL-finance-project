@@ -93,7 +93,7 @@ def get_predictions(model,X_train,X_test,y_test,train_df,test_df,run_name):
         'Mean Absolute Error':mae,
         'Root Mean Square Error':rmse,
         'R-squared':r2
-    },index=[0])
+    },index=[0,1,2,3])
     evaluation_df.to_csv('evaluation_metrics/metrics-'+run_name+'.csv')
 
     # Add predictions to final dataset
