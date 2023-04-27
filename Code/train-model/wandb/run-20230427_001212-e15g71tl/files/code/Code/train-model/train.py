@@ -95,7 +95,7 @@ def get_predictions(model,X_train,X_test,y_test,train_df,test_df):
 
 def plot_graph(df):
     fig, ax = plt.subplots(figsize=(10, 6))
-    df.plot(y='Close',color='green',ax=ax,label='Actual Price Diff')
+    df.plot(y='PriceDiff',color='green',ax=ax,label='Actual Price Diff')
     df.loc['2022-01-01':, 'Predicted Price Diff'].plot(ax=ax, color='red', label='Predicted Price Diff for 2022')
     ax.set_title('Predicted Stock Price Diff for 2020-2022 (Train from 2020-2021 and Test 2022)')
 
