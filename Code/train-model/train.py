@@ -73,17 +73,16 @@ def load_and_train_model(X_train,y_train,X_test,y_test):
     return model
 
 def get_predictions(model,X_train,X_test,y_test,train_df,test_df,run_name):
-    # Get predictions for train and test dataset
-    predictions_train = model.predict(X_train)
-    predictions_test = model.predict(X_test)
-
-    predicted_price_diff = np.concatenate((predictions_train,predictions_test),axis=0)
+    # Add predictions to final dataset
+    # df = pd.concat([train_df,test_df],ignore_index=True)
+    predicted_price_diff = model.predict(X_test)
+    test_df['Predicted Price Diff'] = predicted_price_diff
 
     # Evaluate the model
-    mse = mean_squared_error(y_test, predictions_test)
-    mae = mean_absolute_error(y_test, predictions_test)
+    mse = mean_squared_error(y_test, predicted_price_diff)
+    mae = mean_absolute_error(y_test, predicted_price_diff)
     rmse = np.sqrt(mse)
-    r2 = r2_score(y_test, predictions_test)
+    r2 = r2_score(y_test, predicted_price_diff)
     print(f'Mean Squared Error: {mse:.2f}')
     print(f'Mean Absolute Error: {mae:.2f}')
     print(f'Root Mean Squared Error: {rmse:.2f}')
@@ -96,16 +95,34 @@ def get_predictions(model,X_train,X_test,y_test,train_df,test_df,run_name):
     },index=[0])
     evaluation_df.to_csv('evaluation_metrics/metrics-'+run_name+'.csv')
 
-    # Add predictions to final dataset
-    df = pd.concat([train_df,test_df],ignore_index=True)
-    df['Predicted Price Diff'] = predicted_price_diff
-    return df
+    return test_df
 
-def plot_graph(df,test_df,run_name):
-    fig, ax = plt.subplots(figsize=(10, 6))
-    df.plot(y='Close',color='green',ax=ax,label='Actual Price Diff')
-    df.loc[test_df['Date'][0]:,'Predicted Price Diff'].plot(ax=ax, color='red', label='Predicted Price Diff for 2022')
-    ax.set_title('Predicted Stock Price Diff for '+run_name+' 2020-2022 (Train from 2020-2021 and Test 2022)')
+def plot_graph(train_df,test_df,run_name):
+    # Select rows where 'Date' starts with '2021'
+    date_mask = train_df['Date'].str.startswith('2021')
+    date_2021_df = train_df[date_mask]
+
+    # Get the first row of the resulting DataFrame
+    first_date_2021 = date_2021_df.iloc[0]['Date']
+
+    # Plot the train_df data
+    plt.figure(figsize=(10,6))
+    plt.plot(train_df['Date'], train_df['Close'], color='blue', label='Actual PriceDiff 2020-2021',linewidth=1)
+
+    # Plot the test_df data
+    plt.plot(test_df['Date'], test_df['Close'], color='red', label='Actual PriceDiff 2022',linewidth=1)
+    plt.plot(test_df['Date'], test_df['Predicted Price Diff'], color='green', label='Predicted PriceDiff 2022',linewidth=1)
+    plt.xticks([train_df.iloc[0]['Date'],first_date_2021, test_df.iloc[0]['Date'],test_df.iloc[-1]['Date']])
+
+    # Add title, x-label, and y-label
+    plt.title('Predicted Stock Price Diff for '+run_name+' 2020-2022 (Train from 2020-2021 and Test 2022)')
+    plt.xlabel('Date')
+    plt.ylabel('Price Difference')
+
+    # Add legend
+    plt.legend()
+
+    # Save plot
     plt.savefig('charts/'+run_name+'.png')
 
 
@@ -135,9 +152,9 @@ def main():
     model = load_and_train_model(X_train=X_train,y_train=y_train,X_test=X_test,y_test=y_test)
 
     # Make predictions and evaluation and obtain the final dataframe
-    final_df = get_predictions(model=model,X_train=X_train,X_test=X_test,y_test=y_test,train_df=train_df,test_df=test_df,run_name=args.wandb_run_name)
+    test_df = get_predictions(model=model,X_train=X_train,X_test=X_test,y_test=y_test,train_df=train_df,test_df=test_df,run_name=args.wandb_run_name)
 
     # Plot the graph for predictions on 2022 stock price diff values
-    plot_graph(df=final_df,test_df=test_df,run_name=args.wandb_run_name)
+    plot_graph(train_df = train_df,test_df=test_df,run_name=args.wandb_run_name)
 
 main()
