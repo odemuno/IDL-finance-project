@@ -1,0 +1,48 @@
+{
+    "os": "macOS-10.16-x86_64-i386-64bit",
+    "python": "3.9.12",
+    "heartbeatAt": "2023-04-27T21:51:34.260612",
+    "startedAt": "2023-04-27T21:51:33.764083",
+    "docker": null,
+    "cuda": null,
+    "args": [
+        "4d264354a256827a6fb3f5fc1957ba0e0c4b1830",
+        "amc-news-only-lstm-attention",
+        "updated-data/amc-newsonly-train-2020-2021.csv",
+        "updated-data/amc-newsonly-test-2022.csv",
+        "lstm-attention"
+    ],
+    "state": "running",
+    "program": "/Users/Dell/Documents/GitHub/IDL-finance-project/Code/train-model/train.py",
+    "codePath": "Code/train-model/train.py",
+    "git": {
+        "remote": "https://github.com/odemuno/IDL-finance-project.git",
+        "commit": "eda799f6f1c69401f7ad47d2a042018c03b1f8a1"
+    },
+    "email": "msudhir@andrew.cmu.edu",
+    "root": "/Users/Dell/Documents/GitHub/IDL-finance-project",
+    "host": "macbook-air-74.wifi.local.cmu.edu",
+    "username": "Dell",
+    "executable": "/Users/Dell/miniconda3/bin/python",
+    "cpu_count": 8,
+    "cpu_count_logical": 8,
+    "cpu_freq": {
+        "current": 2400,
+        "min": 2400,
+        "max": 2400
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 2400,
+            "min": 2400,
+            "max": 2400
+        }
+    ],
+    "disk": {
+        "total": 460.4317207336426,
+        "used": 446.48989486694336
+    },
+    "memory": {
+        "total": 8.0
+    }
+}

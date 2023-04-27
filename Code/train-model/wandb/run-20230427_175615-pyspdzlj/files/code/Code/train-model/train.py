@@ -1,8 +1,9 @@
 # Import required libraries
 import pandas as pd
 import tensorflow as tf
+from tensorflow.keras import backend as K
 from tensorflow.keras.models import Sequential, Model
-from tensorflow.keras.layers import Input, Dense, LSTM, Dropout, Flatten, Concatenate, Attention
+from tensorflow.keras.layers import Input, Dense, LSTM, Dropout, Bidirectional, TimeDistributed, Activation, Dot, Concatenate, Reshape, Lambda
 import numpy as np
 import matplotlib.pyplot as plt
 import wandb
@@ -54,6 +55,18 @@ def train_test_split(train_df,test_df):
     y_test = test_df.Close
     return X_train,y_train,X_test,y_test
 
+# Define the attention mechanism
+def attention_layer(inputs, units):
+    input_dim = int(inputs.shape[2])
+    a = Input(shape=(input_dim,))
+    d = Lambda(lambda x: K.batch_dot(x, a, axes=1))(inputs)
+    d = Activation('softmax')(d)
+    d = Lambda(lambda x: K.expand_dims(x))(d)
+    weighted_input = Dot(axes=1)([d, inputs])
+    weighted_input = Concatenate()([weighted_input, a])
+    outputs = Dense(units, activation='tanh')(weighted_input)
+    attention_model = Model(inputs=[inputs, a], outputs=outputs)
+    return attention_model
 
 def load_and_train_model(X_train,y_train,X_test,y_test,model_type):
     model = None
@@ -67,18 +80,16 @@ def load_and_train_model(X_train,y_train,X_test,y_test,model_type):
         model.add(LSTM(units=50))
         model.add(Dropout(0.2))
         model.add(Dense(units=1))
-    elif model_type=='attention':
+    elif model_type=='lstm-attention':
         # Build the model
-        input_layer = Input(shape=(X_train.shape[1], 1))
-        attention = Attention()([input_layer, input_layer])
-        flatten = Flatten()(attention)
-        sentiment_score_input = Input(shape=(1,))
-        concatenate = Concatenate()([flatten, sentiment_score_input])
-        dense1 = Dense(units=64, activation='relu')(concatenate)
-        dense2 = Dense(units=32, activation='relu')(dense1)
-        output_layer = Dense(units=1)(dense2)
-        model = Model(inputs=[input_layer, sentiment_score_input], outputs=output_layer)
-
+        inputs = Input(shape=(X_train.shape[1], 1))
+        lstm1 = Bidirectional(LSTM(units=64, return_sequences=True))(inputs)
+        lstm2 = Bidirectional(LSTM(units=64, return_sequences=True))(lstm1)
+        lstm3 = Bidirectional(LSTM(units=64))(lstm2)
+        attention = attention_layer(lstm3, 64)
+        attention_output = attention([lstm3, attention.output[0]])
+        output = Dense(units=1)(attention_output)
+        model = Model(inputs=inputs, outputs=output)
 
     # Compile the model
     model.compile(optimizer='sgd', loss='mean_squared_error')   
