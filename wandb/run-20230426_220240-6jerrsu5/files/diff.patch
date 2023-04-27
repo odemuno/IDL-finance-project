@@ -1,0 +1,16 @@
+diff --git a/.DS_Store b/.DS_Store
+index e4bcc5f..dc8ee18 100644
+Binary files a/.DS_Store and b/.DS_Store differ
+diff --git a/train.ipynb b/train.ipynb
+index 0219aeb..8cd3108 100644
+--- a/train.ipynb
++++ b/train.ipynb
+@@ -60,7 +60,7 @@
+    ],
+    "source": [
+     "import wandb\n",
+-    "wandb.login(key=\"YOU_API_KEY\")"
++    "wandb.login(key=\"4d264354a256827a6fb3f5fc1957ba0e0c4b1830\")"
+    ]
+   },
+   {

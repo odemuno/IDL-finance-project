@@ -1,0 +1,41 @@
+{
+    "os": "macOS-10.16-x86_64-i386-64bit",
+    "python": "3.9.12",
+    "heartbeatAt": "2023-04-27T02:02:41.157827",
+    "startedAt": "2023-04-27T02:02:40.079033",
+    "docker": null,
+    "cuda": null,
+    "args": null,
+    "state": "running",
+    "program": "<python with no main file>",
+    "git": {
+        "remote": "https://github.com/odemuno/IDL-finance-project.git",
+        "commit": "f0eb6a88064e937a4f7f05e8075a0e26cc2ac825"
+    },
+    "email": "msudhir@andrew.cmu.edu",
+    "root": "/Users/Dell/Documents/GitHub/IDL-finance-project",
+    "host": "macbook-air-74.wifi.local.cmu.edu",
+    "username": "Dell",
+    "executable": "/Users/Dell/miniconda3/bin/python",
+    "cpu_count": 8,
+    "cpu_count_logical": 8,
+    "cpu_freq": {
+        "current": 2400,
+        "min": 2400,
+        "max": 2400
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 2400,
+            "min": 2400,
+            "max": 2400
+        }
+    ],
+    "disk": {
+        "total": 460.4317207336426,
+        "used": 446.49137115478516
+    },
+    "memory": {
+        "total": 8.0
+    }
+}
