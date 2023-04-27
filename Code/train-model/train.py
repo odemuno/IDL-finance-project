@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import wandb
 from wandb.keras import WandbCallback
 import argparse
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 # Wandb setup
 def wandb_setup(api_key,run_name):
@@ -70,11 +71,21 @@ def load_and_train_model(X_train,y_train,X_test,y_test):
 
     return model
 
-def get_predictions(model,X_train,X_test,train_df,test_df):
+def get_predictions(model,X_train,X_test,y_test,train_df,test_df):
     # Get predictions for train and test dataset
     predictions_train = model.predict(X_train)
     predictions_test = model.predict(X_test)
     predicted_price_diff = np.concatenate((predictions_train,predictions_test),axis=0)
+
+    # Evaluate the model
+    mse = mean_squared_error(y_test, predictions_test)
+    mae = mean_absolute_error(y_test, predictions_test)
+    rmse = np.sqrt(mse)
+    r2 = r2_score(y_test, predictions_test)
+    print(f'Mean Squared Error: {mse:.2f}')
+    print(f'Mean Absolute Error: {mae:.2f}')
+    print(f'Root Mean Squared Error: {rmse:.2f}')
+    print(f'R-squared: {r2:.2f}')
 
     # Add predictions to final dataset
     df = pd.concat([train_df,test_df])
@@ -114,10 +125,12 @@ def main():
     # Load the LSTM model and train it
     model = load_and_train_model(X_train=X_train,y_train=y_train,X_test=X_test,y_test=y_test)
 
-    # Make predictions and obtain the final dataframe
-    final_df = get_predictions(model=model,X_train=X_train,X_test=X_test,train_df=train_df,test_df=test_df)
+    # Make predictions and evaluation and obtain the final dataframe
+    final_df = get_predictions(model=model,X_train=X_train,X_test=X_test,y_test=y_test,train_df=train_df,test_df=test_df)
 
     # Plot the graph for predictions on 2022 stock price diff values
     plot_graph(final_df)
+
+    
 
 main()
