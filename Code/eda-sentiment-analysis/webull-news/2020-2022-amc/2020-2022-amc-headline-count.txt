@@ -1,0 +1,1 @@
+The number of news headlines in this 2020-2022 AMC dataframe:  4641
