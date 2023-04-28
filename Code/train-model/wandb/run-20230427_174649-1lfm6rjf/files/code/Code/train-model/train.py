@@ -2,7 +2,7 @@
 import pandas as pd
 import tensorflow as tf
 from tensorflow.keras.models import Sequential, Model
-from tensorflow.keras.layers import Input, Dense, LSTM, Dropout, Flatten, Concatenate, Attention
+from tensorflow.keras.layers import Input, Dense, LSTM, Dropout, Bidirectional, TimeDistributed, Activation, Dot, Concatenate
 import numpy as np
 import matplotlib.pyplot as plt
 import wandb
@@ -67,18 +67,30 @@ def load_and_train_model(X_train,y_train,X_test,y_test,model_type):
         model.add(LSTM(units=50))
         model.add(Dropout(0.2))
         model.add(Dense(units=1))
-    elif model_type=='attention':
-        # Build the model
-        input_layer = Input(shape=(X_train.shape[1], 1))
-        attention = Attention()([input_layer, input_layer])
-        flatten = Flatten()(attention)
-        sentiment_score_input = Input(shape=(1,))
-        concatenate = Concatenate()([flatten, sentiment_score_input])
-        dense1 = Dense(units=64, activation='relu')(concatenate)
-        dense2 = Dense(units=32, activation='relu')(dense1)
-        output_layer = Dense(units=1)(dense2)
-        model = Model(inputs=[input_layer, sentiment_score_input], outputs=output_layer)
+    elif model_type=='lstm-attention':
+        # Define the input layer
+        inputs = Input(shape=(X_train.shape[1], 1))
 
+        # Define the LSTM layer with return sequences set to True
+        lstm_out = Bidirectional(LSTM(units=64, return_sequences=True))(inputs)
+
+        # Define the attention mechanism
+        attn_layer = TimeDistributed(Dense(1, activation='tanh'))(lstm_out)
+        attn_weights = Activation('softmax', name='attention_weights')(attn_layer)
+        context = Dot(axes=1, name='attention_dot')([attn_weights, lstm_out])
+        context = Concatenate(axis=2)([context, lstm_out])
+
+        # Define the remaining LSTM layers with return sequences set to False
+        lstm_out2 = Bidirectional(LSTM(units=64, return_sequences=False))(context)
+        lstm_out2 = Dropout(0.2)(lstm_out2)
+        lstm_out3 = Bidirectional(LSTM(units=64, return_sequences=False))(lstm_out2)
+        lstm_out3 = Dropout(0.2)(lstm_out3)
+
+        # Define the output layer
+        output = Dense(units=1)(lstm_out3)
+
+        # Define the model with inputs and outputs
+        model = Model(inputs=[inputs], outputs=[output])
 
     # Compile the model
     model.compile(optimizer='sgd', loss='mean_squared_error')   

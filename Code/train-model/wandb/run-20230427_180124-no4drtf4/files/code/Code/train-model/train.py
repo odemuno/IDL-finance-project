@@ -2,7 +2,7 @@
 import pandas as pd
 import tensorflow as tf
 from tensorflow.keras.models import Sequential, Model
-from tensorflow.keras.layers import Input, Dense, LSTM, Dropout, Flatten, Concatenate, Attention
+from tensorflow.keras.layers import Input, Dense, LSTM, Dropout, Dot, Activation, Flatten, Reshape, AdditiveAttention
 import numpy as np
 import matplotlib.pyplot as plt
 import wandb
@@ -69,16 +69,15 @@ def load_and_train_model(X_train,y_train,X_test,y_test,model_type):
         model.add(Dense(units=1))
     elif model_type=='attention':
         # Build the model
-        input_layer = Input(shape=(X_train.shape[1], 1))
-        attention = Attention()([input_layer, input_layer])
-        flatten = Flatten()(attention)
-        sentiment_score_input = Input(shape=(1,))
-        concatenate = Concatenate()([flatten, sentiment_score_input])
-        dense1 = Dense(units=64, activation='relu')(concatenate)
-        dense2 = Dense(units=32, activation='relu')(dense1)
-        output_layer = Dense(units=1)(dense2)
-        model = Model(inputs=[input_layer, sentiment_score_input], outputs=output_layer)
+        inputs = Input(shape=(X_train.shape[1], 1))
+        attention = AdditiveAttention()([inputs, inputs])
+        attention = Dense(units=1)(attention)
+        attention = Activation('softmax')(attention)
+        context = Dot(axes=1)([attention, inputs])
+        context = Reshape((X_train.shape[1],))(context)
+        output = Dense(units=1)(context)
 
+        model = Model(inputs=inputs, outputs=output)
 
     # Compile the model
     model.compile(optimizer='sgd', loss='mean_squared_error')   

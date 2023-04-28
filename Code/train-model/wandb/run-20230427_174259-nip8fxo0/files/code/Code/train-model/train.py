@@ -2,12 +2,11 @@
 import pandas as pd
 import tensorflow as tf
 from tensorflow.keras.models import Sequential, Model
-from tensorflow.keras.layers import Input, Dense, LSTM, Dropout, Flatten, Concatenate, Attention
+from tensorflow.keras.layers import Input, Dense, LSTM, Dropout, Bidirectional, Permute, Multiply, Lambda
 import numpy as np
 import matplotlib.pyplot as plt
 import wandb
 from wandb.keras import WandbCallback
-from tensorflow.keras.callbacks import EarlyStopping
 import argparse
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
@@ -54,6 +53,13 @@ def train_test_split(train_df,test_df):
     y_test = test_df.Close
     return X_train,y_train,X_test,y_test
 
+# Define the attention mechanism
+def attention(inputs):
+    x = Permute((2, 1))(inputs)
+    x = Dense(inputs.shape[2], activation='softmax')(x)
+    x = Multiply()([inputs, x])
+    x = Lambda(lambda y: tf.keras.backend.sum(y, axis=1))(x)
+    return x
 
 def load_and_train_model(X_train,y_train,X_test,y_test,model_type):
     model = None
@@ -67,27 +73,19 @@ def load_and_train_model(X_train,y_train,X_test,y_test,model_type):
         model.add(LSTM(units=50))
         model.add(Dropout(0.2))
         model.add(Dense(units=1))
-    elif model_type=='attention':
+    elif model_type=='lstm-attention':
         # Build the model
-        input_layer = Input(shape=(X_train.shape[1], 1))
-        attention = Attention()([input_layer, input_layer])
-        flatten = Flatten()(attention)
-        sentiment_score_input = Input(shape=(1,))
-        concatenate = Concatenate()([flatten, sentiment_score_input])
-        dense1 = Dense(units=64, activation='relu')(concatenate)
-        dense2 = Dense(units=32, activation='relu')(dense1)
-        output_layer = Dense(units=1)(dense2)
-        model = Model(inputs=[input_layer, sentiment_score_input], outputs=output_layer)
-
+        inputs = Input(shape=(X_train.shape[1], 1))
+        lstm = Bidirectional(LSTM(units=64, return_sequences=True))(inputs)
+        attn = attention(lstm)
+        dense = Dense(units=1)(attn)
+        model = Model(inputs=inputs, outputs=dense)
 
     # Compile the model
     model.compile(optimizer='sgd', loss='mean_squared_error')   
 
-    # Define early stopping callback to prevent overfitting
-    early_stopping = EarlyStopping(monitor='val_loss', patience=10)
-
     # train the model
-    model.fit(X_train, y_train, epochs=500, batch_size=64, validation_data=(X_test, y_test),callbacks=[WandbCallback(monitor='val_loss', save_model=True),early_stopping])
+    model.fit(X_train, y_train, epochs=500, batch_size=64, validation_data=(X_test, y_test),callbacks=[WandbCallback(monitor='val_loss', save_model=True)])
 
     return model
 
