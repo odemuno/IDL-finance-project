@@ -1,9 +1,6 @@
-# Predicting Stock Market Volatility using Sentiment Analysis of Twitter Data
+# Leveraging Deep Learning to Forecast Stock Market Volatility via News Headlines and Social Media Sentiment Analysis
 
-The hypotheses to be tested include whether sentiment analysis can identify stock market events quicker and more accurately than traditional models, the correlation between the volatility of large-cap and small-cap stocks like AAPL and ACMR respectively, the influence of one stock's movement on other stocks, and the relevance of specific keywords or tickers in predicting stock market movement. The study aims to improve upon previous research exploring the use of alternative keywords and tickers beyond those previously identified and applying sentiment analysis on these but not limited to those data.
+  This project aims to investigate the effectiveness of using sentiment analysis techniques on data obtained from multiple news sources, namely Webull, Twitter, and Reddit, to predict stock price differences during the COVID-19 pandemic. We focus on two companies, one large-cap (Zoom) and one small-cap (AMC), to explore the correlation between market sentiment and stock price movement. The process of scraping data from social media and news sources will be described, followed by the methodology used for sentiment analysis and stock price difference prediction using deep learning models. The study aims to provide insights into the usefulness of social media data for predicting stock market trends, as well as the impact of market capitalization on this relationship. This study has the potential to contribute to the existing body of research on alternative data sources and sentiment analysis in predicting stock market behavior.
 
 Baseline paper: https://www.scirp.org/journal/paperinformation.aspx?paperid=104142#ref9
 
-
-## Twitter Sentiment Data
-You can download the data for the sentiment analysis here: https://www.kaggle.com/datasets/kazanova/sentiment140
